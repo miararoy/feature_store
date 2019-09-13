@@ -1,0 +1,93 @@
+swagger: "2.0"
+
+info:
+  title: "FeatureStore"
+  version: "1.0"
+
+basePath: /v1.0
+
+paths:
+  /publish:
+    put:
+      summary: creates flows and save to db, emulate user flow
+      operationId: app.publish
+      parameters:
+        - in: query
+          name: n_flows
+          description: number of flows
+          required: true
+          type: integer
+      produces:
+        - application/json;
+      responses:
+        200:
+          description: OK
+        500:
+          description: Failed
+  /query/train:
+    post:
+      summary: runs a query against training database
+      description: updates database with hf
+      consumes:
+         - application/json
+      operationId: app.query_train
+      parameters:
+        - in: body
+          name: query
+          description: the query to run
+          required: true
+          schema:
+            $ref: '#/definitions/query'
+        - name: save
+          in: query
+          type: boolean
+          description: should save query in query store
+          required: false
+          default: false
+      produces:
+        - application/json;
+      responses:
+        200:
+          description: OK
+        500:
+          description: Failed
+  /query/realtime:
+    post:
+      summary: runs a query against training database
+      description: updates database with hf
+      consumes:
+         - application/json
+      operationId: app.query_realtime
+      parameters:
+        - in: body
+          name: query
+          description: the query to run
+          required: true
+          schema:
+            $ref: '#/definitions/query_rt'
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+        500:
+          description: Failed  
+ 
+definitions:
+  query:
+    type: object
+    properties:
+      query:
+        type: string
+      query_name:
+        type: string
+        default: q
+  query_rt:
+    type: object
+    properties:
+      query_id:
+        type: string
+      key:
+        type: string
+      value:
+        type: string
