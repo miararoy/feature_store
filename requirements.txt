@@ -1,3 +1,5 @@
 pymongo==3.7.2
 psycopg2==2.7.6.1
 pandas==0.25.0
+fake-factory==0.5.7
+connexion==2.1.0
