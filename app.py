@@ -29,19 +29,15 @@ def publish(n_flows):
         q, u, t, p = get_single_flow()
         warehouse.insert("quotes", q)
         rt.insert("quotes", q)
-        print(q)
         if u:
             warehouse.insert("users", u)
             rt.insert("users", u)
-            print(u)
         if t:
             warehouse.insert("transactions", t)
             rt.insert("transactions", t)
-            print(t)
         if p:
             warehouse.insert("policies", p)
             rt.insert("policies", p)
-            print(p)
     return Response(status=200, response=json.dumps({"msg": "created {} flows".format(n_flows)}))
 
 def query_train(query, save):
@@ -51,7 +47,6 @@ def query_train(query, save):
             query_id = catalog.save("roy", "query", query)
         else:
             query_id = None
-        print(data)
     except BaseException as be:
         return Response(status=500, response=json.dumps({"msg": "failed fetching data", "reason": str(be)}))
     return Response(

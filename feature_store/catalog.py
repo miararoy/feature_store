@@ -10,6 +10,13 @@ from feature_store.mdb_client import MDBClient
 log = Logger("catalog").get_logger()
 
 def _mask_uri(uri:str)-> str:
+    """
+    Args:
+        uri(str): database uris
+
+    Returns:
+        parsed(str): masked uri
+    """
     return urlparse(uri)._replace(
         netloc="{}:{}@{}".format(urlparse(uri).username, "******", urlparse(uri).hostname)
     ).geturl()
@@ -20,6 +27,11 @@ class Catalog(object):
         self,
         db_url: str,
     ):
+        """ initiates catalog and collection for storing features and
+        queries
+        Args:
+            db_url(str): mongodb url
+        """
         self.db_url = _mask_uri(db_url)
         self.client = MDBClient(db_url)
         self.db = self.client.get()
@@ -33,6 +45,14 @@ class Catalog(object):
 
 
     def save(self, dev_id: str, data_type: str, data: dict):
+        """
+        Args:
+            def_id(str): dev identifier
+            data_type(str): feature, query or model object
+            data(dict): catalog data
+        Returns:
+            obj_id(str): catalog object id
+        """
         if data_type in CatalogConstants.catalog_collections.values():
             collection = CatalogConstants.catalog_collections[data_type]    
             obj = {**{"dev_id": dev_id}, **data}
@@ -48,6 +68,14 @@ class Catalog(object):
 
 
     def load(self, data_type: str, obj_id:str):
+        """
+        Args:
+            data_type(str): feature, query or model
+            obj_id(str): catalog object id
+
+        Returns:
+            query(dict): catalog object
+        """
         if data_type in CatalogConstants.catalog_collections.values():
             collection = CatalogConstants.catalog_collections[data_type]
             if isinstance(obj_id, str):
