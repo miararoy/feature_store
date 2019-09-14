@@ -17,8 +17,8 @@ else:
     log.warn("Using local email since DATABASE_URL env was not found")
     PSG_URL = LOCAL_URL
 
-if os.getenv("MONGO_URL"):
-    MDB_URL = os.getenv("MONGO_URL")
+if os.getenv("MONGODB_URI"):
+    MDB_URL = os.getenv("MONGODB_URI")
 else:
     log.warn("Using local email since MONGO_URL env was not found")
     MDB_URL = LOCAL_MONGO
