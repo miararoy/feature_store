@@ -17,7 +17,7 @@ def get_single_flow():
         quote.bind(user)
 
         if random.random() > 0.2:
-            for i in range(random.randint(3, 6)):
+            for _ in range(random.randint(3, 6)):
                 payment_method = PaymentMethod()
                 trans = Transaction(user, payment_method)
             quote.purchase(trans)

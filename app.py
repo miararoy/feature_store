@@ -7,7 +7,7 @@ import connexion
 from feature_store.warehouse import Warehouse
 from feature_store.real_time_data import RTDB
 from feature_store.catalog import Catalog
-from feature_store.config import SCHEMA, PSG_URL, MDB_URL
+from feature_store.config import MDB_URL
 from feature_store.feature_extraction import rt, warehouse
 from flow.flow import get_single_flow
 
@@ -15,11 +15,11 @@ from feature_store.logger import Logger
 
 log = Logger("app").get_logger()
 
-warehouse = Warehouse(url=PSG_URL)
-warehouse.create()
+# warehouse = Warehouse(url=PSG_URL)
+# warehouse.create()
 
-rt = RTDB()
-rt.create()
+# rt = RTDB()
+# rt.create()
 
 catalog = Catalog(MDB_URL)
 
@@ -43,7 +43,6 @@ def publish(n_flows):
             rt.insert("policies", p)
             print(p)
     return Response(status=200, response=json.dumps({"msg": "created {} flows".format(n_flows)}))
-
 
 def query_train(query, save):
     try:
@@ -80,6 +79,8 @@ def query_realtime(query):
         )
     )
 
+def extract():
+    pass
 
 if __name__ == "__main__":
     app = connexion.FlaskApp(
