@@ -1,11 +1,11 @@
-from flow import random, Factory, uuid4, datetime, json
+from flow import random, Factory, uuid4, datetime, json, time
 
 fake = Factory.create()
 
 class User(object):
     def __init__(self,):
         self.user_id = str(uuid4())
-        self.creation_date = str(datetime.datetime.now())
+        self.creation_date = time()
         self.name = fake.name()
         self.address = fake.address().replace('\n', ' ')
 

@@ -1,4 +1,4 @@
-from flow import random, Factory, uuid4, json, datetime
+from flow import random, Factory, uuid4, json, datetime, time
 from flow.user import User
 
 fake = Factory.create()
@@ -11,7 +11,7 @@ class PaymentMethod(object):
         self.card_type = "debit" if random.random() > 0.8 else "credit"
 
     def process_random_payment(self):
-        if random.random() > 0.2:
+        if random.random() > 0.5:
             return True
         else:
             return False        
@@ -28,7 +28,7 @@ class Transaction(object):
         self.transaction_id = str(uuid4())
         self.user_id = user.get_user_id()
         self.successful = payment_method.process_random_payment()
-        self.transaction_time = str(datetime.datetime.now())
+        self.transaction_time = time()
         self.card_number = payment_method.card_number[:4] + "********" + payment_method.card_number[-4:]
         self.card_expiration_date = payment_method.card_expiration_date
         self.card_type = payment_method.card_type

@@ -24,7 +24,6 @@ class Warehouse(object):
     
     def query(self, cmd):
         df = self.client.query(cmd)
-        df["creation_date"] = df["creation_date"].astype(str)
         return df.to_dict(orient='records')
 
 

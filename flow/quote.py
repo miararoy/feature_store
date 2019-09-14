@@ -1,5 +1,5 @@
 from logging import Logger
-from flow import uuid4, random, datetime, json
+from flow import uuid4, random, datetime, json, time
 
 from flow.user import User
 from flow.transaction import Transaction
@@ -47,7 +47,7 @@ class Quote(object):
         self.is_paid = True
         self.binding_date = None
         self.user_id = None
-        self.creation_date = str(datetime.datetime.now())
+        self.creation_date = time()
         quote_data = _generate_fake_quote_data()
         self.quote_type = quote_data["type"]
         self.quote_device = quote_data["device"]
@@ -57,7 +57,7 @@ class Quote(object):
         if not self.is_binded:
             self.user_id = user.get_user_id()
             self.is_binded = True
-            self.binding_date = str(datetime.datetime.now())
+            self.binding_date = time()
         else:
             log.warn("quote is alredy bounded, will not re-bind")
         
@@ -73,7 +73,7 @@ class Quote(object):
             quote_id=self.quote_id,
             policy_type=self.quote_type,
             device=self.quote_device,
-            purchase_time=str(datetime.datetime.now())
+            purchase_time=time()
         )
 
     def get(self):

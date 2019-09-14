@@ -12,13 +12,14 @@ def get_single_flow():
     user = EmptyAttr()
     trans = EmptyAttr()
     policy = EmptyAttr()
-    if random.random() > 0.1:
+    if random.random() > 0.2:
         user = User()
         quote.bind(user)
 
-        if random.random() > 1.1:
-            payment_method = PaymentMethod()
-            trans = Transaction(user, payment_method)
+        if random.random() > 0.2:
+            for i in range(random.randint(3, 6)):
+                payment_method = PaymentMethod()
+                trans = Transaction(user, payment_method)
             quote.purchase(trans)
             policy = quote.generate_policy()
 
