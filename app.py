@@ -7,8 +7,8 @@ import connexion
 from feature_store.warehouse import Warehouse
 from feature_store.real_time_data import RTDB
 from feature_store.catalog import Catalog
-from feature_store.config import MDB_URL
-from feature_store.feature_extraction import rt, warehouse
+from feature_store.config import MDB_URL, SCHEMA
+from feature_store.feature_extraction import rt, warehouse, FeatureExtraction
 from flow.flow import get_single_flow
 
 from feature_store.logger import Logger
@@ -47,13 +47,13 @@ def publish(n_flows):
 def query_train(query, save):
     try:
         data = warehouse.query(query["query"])
+        if save:
+            query_id = catalog.save("roy", "query", query)
+        else:
+            query_id = None
         print(data)
-    except:
-        return Response(status=500, response=json.dumps({"msg": "failed fetching data"}))
-    if save:
-        query_id = catalog.save("roy", "query", query)
-    else:
-        query_id = None
+    except BaseException as be:
+        return Response(status=500, response=json.dumps({"msg": "failed fetching data", "reason": str(be)}))
     return Response(
         status=200, 
         response=json.dumps(
@@ -67,9 +67,9 @@ def query_train(query, save):
 def query_realtime(query):
     try:
         q = catalog.load("query", query["query_id"])["query"].replace(SCHEMA, "main")
-        data = rt.query(q, query["key"], query["value"])
-    except:
-        return Response(status=500, response=json.dumps({"msg": "failed fetching data"}))
+        data = rt.query(q, query["index_key"], query["index_value"])
+    except BaseException as be:
+        return Response(status=500, response=json.dumps({"msg": "failed fetching data", "reason": str(be)}))
     return Response(
         status=200, 
         response=json.dumps(
@@ -79,8 +79,48 @@ def query_realtime(query):
         )
     )
 
-def extract():
-    pass
+def extract_train(query, save):
+    query_id = query["query_id"]
+    etl = query["etl_path"]
+    feature_extraction = FeatureExtraction(etl)
+    try:
+        data = feature_extraction.extract(query_id)
+        if save:
+            if "name" in query:
+                etl_id = feature_extraction.save(name=query["name"])
+            else:
+                etl_id = feature_extraction.save()
+        else:
+            etl_id = None
+    except BaseException as be:
+        return Response(status=500, response=json.dumps({"msg": "failed performing feature extraxtion", "reason": str(be)}))
+    return Response(
+        status=200, 
+        response=json.dumps(
+            {
+                "etl_id": etl_id,
+                "data": data
+            }
+        )
+    )
+
+def extract_realtime(query):
+    query_id = query["query_id"]
+    etl = query["etl_id"]
+    try:
+        feature_extraction = FeatureExtraction(etl)
+        data = feature_extraction.extract(query_id, is_serving=True, key=query["index_key"], value=query["index_value"])
+    except BaseException as be:
+        return Response(status=500, response=json.dumps({"msg": "failed performing feature extraxtion", "reason": str(be)}))
+    return Response(
+        status=200, 
+        response=json.dumps(
+            {
+                "data": data
+            }
+        )
+    )
+
 
 if __name__ == "__main__":
     app = connexion.FlaskApp(

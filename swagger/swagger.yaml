@@ -71,8 +71,57 @@ paths:
         200:
           description: OK
         500:
-          description: Failed  
+          description: Failed
+  /extract/train:
+    post:
+      summary: runs a query against training database
+      description: updates database with hf
+      consumes:
+          - application/json
+      operationId: app.extract_train
+      parameters:
+        - in: body
+          name: query
+          description: the query to run
+          required: true
+          schema:
+            $ref: '#/definitions/extract'
+        - name: save
+          in: query
+          type: boolean
+          description: should save query in query store
+          required: false
+          default: false
+      produces:
+        - application/json;
+      responses:
+        200:
+          description: OK
+        500:
+          description: Failed
+  /extract/realtime:
+    post:
+      summary: runs a query against training database
+      description: updates database with hf
+      consumes:
+          - application/json
+      operationId: app.extract_realtime
+      parameters:
+        - in: body
+          name: query
+          description: the query to run
+          required: true
+          schema:
+            $ref: '#/definitions/extract_rt'
+      produces:
+        - application/json;
+      responses:
+        200:
+          description: OK
+        500:
+          description: Failed
  
+
 definitions:
   query:
     type: object
@@ -82,12 +131,30 @@ definitions:
       query_name:
         type: string
         default: q
+  extract:
+    type: object
+    properties:
+      query_id:
+        type: string
+      etl_path:
+        type: string
   query_rt:
     type: object
     properties:
       query_id:
         type: string
-      key:
+      index_key:
         type: string
-      value:
+      index_value:
+        type: string
+  extract_rt:
+    type: object
+    properties:
+      query_id:
+        type: string
+      etl_path:
+        type: string
+      index_key:
+        type: string
+      index_value:
         type: string
