@@ -4,3 +4,4 @@ pandas==0.25.0
 fake-factory==0.5.7
 connexion==2.1.0
 SQLAlchemy==1.2.15
+git+https://github.com/miararoy/feature_lib

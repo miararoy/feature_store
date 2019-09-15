@@ -1,10 +1,12 @@
 # feature store
 
 
+# Key Concepts
 
-## Design
-
-Feature store encapsules data query and feature extraction and exposes APIs for both data scientists and backend engineers.
+1. DS handles queries and feature extraction (etl) - he knows what data to pull and how to handle it
+2. BE should not implement queries and feature extraction (etl) - this should be communicated via query_id and etl_id
+3. queries are SQL based, and to enable transperancy and speed we use in-memory SQL
+4. etls should be deployed via git (atm link, in real life - via github integration) for version control
 
 ## main features
 
@@ -17,6 +19,22 @@ Feature store encapsules data query and feature extraction and exposes APIs for 
    2. run feature exraction against query
    3. save and load feature extraction (etl) to catalog
 
+# Architecture
+
+Feature store encapsules data query and feature extraction and exposes APIs for both data scientists and backend engineers.
+
+![alt text](architecture/architecture.png)
+
+## Components:
+
+Catalog: save and/or load queries and etls to catalog database (mongoDB)
+Realtime: in memory sql db to run 'hot' queries
+FeatureExtraction:
+1. load etl from git .py file
+2. run queries and pull data from realtime / warehouse database.
+3. run feature extraction on pulled data
+4. save feature extraction (etl) to catalog
+    
 
 # API DOCUMENTATION
 ## extract/realtime

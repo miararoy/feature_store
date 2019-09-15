@@ -10,7 +10,8 @@ from feature_store.catalog import Catalog
 from feature_store.config import MDB_URL, PSG_URL, SCHEMA
 from feature_store.warehouse import Warehouse
 from feature_store.real_time_data import RTDB
-from feature_store.file_handler import ArtifactHandler, load_etl
+from feature_store.file_handler import EtlArtifactHandler, load_etl
+from feature_store.utils import is_schema_equal, df_schema
 from feature_store.logger import Logger
 
 log = Logger("FeatureExtraction").get_logger()
@@ -23,8 +24,7 @@ rt.create()
 
 catalog = Catalog(MDB_URL)
 
-BASE_PATH = "lib/etl"
-
+ETL_BASE_PATH = "lib/etl"
 
 class FeatureExtraction(object):
     """class that handles feature extractions, running db queries and
@@ -38,11 +38,12 @@ class FeatureExtraction(object):
         Args:
             etl(str): etl(feature) id or a path (local/git) to .py file
         """
-        if etl.endswith(".py"):
+        if etl.endswith(".py"): # FILE ON GIT
             self.Etl = load_etl(etl)
-        else:
+        else: # ETL ID
             path_to_feature_file = catalog.load("feature", etl)["path"]
-            self.Etl = ArtifactHandler().load(path_to_feature_file)
+            self._schema = catalog.load("feature", etl)["etl_schema"]
+            self.Etl = EtlArtifactHandler().load(path_to_feature_file)
         self._etl = etl
 
     def extract(self, query_id, is_serving=False, **serving_args)-> pd.core.frame.DataFrame:
@@ -67,6 +68,11 @@ class FeatureExtraction(object):
             data = warehouse.query(q)
         df = pd.DataFrame(data)
         df_extracted_features = self.Etl(df).extract()
+        if is_serving:
+            if not is_schema_equal(self._schema, df_schema(df_extracted_features)):
+                raise ValueError("feature and data schema not equal")
+        else:
+            self._schema = df_schema(df_extracted_features)
         return df_extracted_features.to_dict(orient="records")
         
     def save(self, name:str=str(int(time()))):
@@ -78,8 +84,12 @@ class FeatureExtraction(object):
         Returns:
             save_id(str): id
         """
-        artifact_path = os.path.join(BASE_PATH, "{}.py".format(name))
-        save_path = ArtifactHandler(artifact=self._etl).save(artifact_path)
-        metadata = {"path": save_path, "save_time": datetime.now().strftime("%d-%m-%Y %H:%M:%S.%f")}
+        artifact_path = os.path.join(ETL_BASE_PATH, "{}.py".format(name))
+        save_path = EtlArtifactHandler(artifact=self._etl).save(artifact_path)
+        metadata = {
+            "path": save_path, 
+            "save_time": datetime.now().strftime("%d-%m-%Y %H:%M:%S.%f"),
+            "etl_schema": self._schema
+        }
         save_id = catalog.save("X", "feature", metadata)
         return save_id
