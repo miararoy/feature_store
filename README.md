@@ -40,6 +40,8 @@ I recommend cloning the repo ```git clone https://github.com/miararoy/feature_st
 4. Authentication and security
 5. Idempotency: hash the query with HMAC to make sure identical queries are not saved to database
 6. query cache - if query is performed a lot, cache it as view in a faster database
+7. Concurrency - some calls should be atomic but others should run in seperate threads.
+
 
 # Architecture
 

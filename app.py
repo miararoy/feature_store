@@ -27,17 +27,17 @@ catalog = Catalog(MDB_URL)
 def publish(n_flows):
     for i in range(n_flows):
         q, u, t, p = get_single_flow()
-        warehouse.insert("quotes", q)
         rt.insert("quotes", q)
+        warehouse.insert("quotes", q)
         if u:
-            warehouse.insert("users", u)
             rt.insert("users", u)
+            warehouse.insert("users", u)
         if t:
-            warehouse.insert("transactions", t)
             rt.insert("transactions", t)
+            warehouse.insert("transactions", t)
         if p:
-            warehouse.insert("policies", p)
             rt.insert("policies", p)
+            warehouse.insert("policies", p)
     return Response(status=200, response=json.dumps({"msg": "created {} flows".format(n_flows)}))
 
 def query_train(query, save):
